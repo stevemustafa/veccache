@@ -27,3 +27,8 @@ target
 # Editors
 .idea/
 PG/
+
+
+# Added by cargo
+
+/target
