@@ -1,0 +1,40 @@
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+  permissions:
+    contents: read
+
+  jobs:
+    build:
+      # skip on title-only edits - nothing to rebuild
+      if: github.event.action != 'edited'
+      runs-on: ubuntu-latest
+      steps:
+        -  uses: actions/checkout@v4
+           with: 
+	     toolchain: "1.97.1"
+             components: rustfmt, clippy
+      
+        - uses:  Swatinem/rust-cache@v2
+
+        - run:  cargo fmt --check
+        - run:  cargo clippy --all-targets -- -D warnings
+        - run:  cargo test
+
+    pr-title:
+      if:  github.event_name == 'pull_request'
+      runs-on:  ubuntu-latest
+      permissions:
+        pull-requests:  read
+      steps:
+        -  uses: amannn/action-semantic-pull-request@v5
+           env:
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    
